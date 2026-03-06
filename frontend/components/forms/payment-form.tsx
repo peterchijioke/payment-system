@@ -230,7 +230,7 @@ export function PaymentForm({ onSuccess }: PaymentFormProps) {
                       value={field.value}
                     >
                       <FormControl>
-                        <SelectTrigger>
+                        <SelectTrigger className="w-full">
                           <SelectValue placeholder="Select source account" />
                         </SelectTrigger>
                       </FormControl>
@@ -269,7 +269,7 @@ export function PaymentForm({ onSuccess }: PaymentFormProps) {
                     <FormItem>
                       <FormLabel>Recipient Name</FormLabel>
                       <FormControl>
-                        <Input placeholder="Enter recipient name" {...field} />
+                        <Input placeholder="Enter recipient name" className="w-full" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -283,7 +283,7 @@ export function PaymentForm({ onSuccess }: PaymentFormProps) {
                     <FormItem>
                       <FormLabel>Recipient Account Number</FormLabel>
                       <FormControl>
-                        <Input placeholder="Enter account number" {...field} />
+                        <Input placeholder="Enter account number" className="w-full" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -304,7 +304,7 @@ export function PaymentForm({ onSuccess }: PaymentFormProps) {
                         value={field.value}
                       >
                         <FormControl>
-                          <SelectTrigger>
+                          <SelectTrigger className="w-full">
                             <SelectValue placeholder="Select country" />
                           </SelectTrigger>
                         </FormControl>
@@ -328,7 +328,7 @@ export function PaymentForm({ onSuccess }: PaymentFormProps) {
                     <FormItem>
                       <FormLabel>Bank Name (Optional)</FormLabel>
                       <FormControl>
-                        <Input placeholder="Enter bank name" {...field} />
+                        <Input placeholder="Enter bank name" className="w-full" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -348,7 +348,7 @@ export function PaymentForm({ onSuccess }: PaymentFormProps) {
                       value={field.value}
                     >
                       <FormControl>
-                        <SelectTrigger>
+                        <SelectTrigger className="w-full">
                           <SelectValue placeholder="Select currency" />
                         </SelectTrigger>
                       </FormControl>
@@ -379,6 +379,7 @@ export function PaymentForm({ onSuccess }: PaymentFormProps) {
                       <Input 
                         type="number" 
                         placeholder="Enter amount" 
+                        className="w-full"
                         {...field}
                       />
                     </FormControl>
