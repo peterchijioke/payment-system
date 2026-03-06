@@ -1,0 +1,18 @@
+services:
+  api:
+    build: .
+    container_name: payment-api
+    ports:
+      - "8080:8080"
+    env_file:
+      - .env
+    environment:
+      - DATABASE_URL=postgresql://neondb_owner:npg_we8qCTxV9MtB@ep-sweet-mud-aik3m31j-pooler.c-4.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
+      - WEBHOOK_SECRET=test-webhook-secret-key-12345
+    restart: unless-stopped
+    networks:
+      - payment-network
+
+networks:
+  payment-network:
+    driver: bridge
