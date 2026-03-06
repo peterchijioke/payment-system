@@ -1,13 +1,11 @@
 FROM node:20-alpine AS base
 
-# Install dependencies only when needed
 FROM base AS deps
 WORKDIR /app
 
 COPY package.json pnpm-lock.yaml ./
 RUN corepack enable pnpm && pnpm install --frozen-lockfile
 
-# Rebuild the source only when needed
 FROM base AS builder
 WORKDIR /app
 
@@ -16,7 +14,6 @@ COPY . .
 
 RUN corepack enable pnpm && pnpm build
 
-# Production image
 FROM base AS runner
 WORKDIR /app
 
