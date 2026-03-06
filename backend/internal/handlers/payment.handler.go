@@ -1,17 +1,33 @@
 package handlers
 
 import (
+	"io"
 	"net/http"
 	"strconv"
 
 	"take-Home-assignment/internal/dto"
+	"take-Home-assignment/internal/models"
 	"take-Home-assignment/internal/services"
 
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 )
 
+// PaymentServiceInterface defines the interface for payment service operations
+type PaymentServiceInterface interface {
+	ProcessPayment(db *gorm.DB, req *dto.PaymentRequest, idempotencyKey string) (*dto.PaymentResponse, error)
+	GetTransactionDetails(transactionID string) (*dto.TransactionDetails, error)
+	ListPayments(limit, offset int, status, startDate, endDate string) ([]dto.TransactionDetails, int64, error)
+	ProcessWebhook(db *gorm.DB, rawBody io.Reader, signature string) (*dto.WebhookPayload, error)
+	ListAccounts() ([]models.Account, error)
+	GetDB() *gorm.DB
+}
+
+// Ensure PaymentService implements PaymentServiceInterface
+var _ PaymentServiceInterface = (*services.PaymentService)(nil)
+
 type PaymentHandler struct {
-	paymentService *services.PaymentService
+	paymentService PaymentServiceInterface
 }
 
 func NewPaymentHandler(paymentService *services.PaymentService) *PaymentHandler {
