@@ -1,17 +1,30 @@
 services:
-  api:
-    build: .
+  backend:
+    build: ./backend
     container_name: payment-api
     ports:
       - "8080:8080"
     env_file:
-      - .env
+      - backend/.env
     environment:
       - DATABASE_URL=postgresql://neondb_owner:npg_we8qCTxV9MtB@ep-sweet-mud-aik3m31j-pooler.c-4.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require
       - WEBHOOK_SECRET=test-webhook-secret-key-12345
     restart: unless-stopped
     networks:
       - payment-network
+
+  frontend:
+    build: ./frontend
+    container_name: payment-frontend
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:8080
+    restart: unless-stopped
+    networks:
+      - payment-network
+    depends_on:
+      - backend
 
 networks:
   payment-network:
