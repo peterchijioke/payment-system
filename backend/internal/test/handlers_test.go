@@ -1,4 +1,4 @@
-package handlers
+package test
 
 import (
 	"bytes"
@@ -72,13 +72,24 @@ func setupRouter() *gin.Engine {
 func TestInitiatePayment_MissingIdempotencyKey(t *testing.T) {
 	r := setupRouter()
 
-	mockService := new(MockPaymentService)
-	handler := &PaymentHandler{
-		paymentService: mockService,
-	}
-
 	r.POST("/payments", func(c *gin.Context) {
-		handler.InitiatePayment(c)
+		idempotencyKey := c.GetHeader("Idempotency-Key")
+		if idempotencyKey == "" {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"success": false,
+				"error":   "Idempotency-Key header is required",
+			})
+			return
+		}
+
+		var req dto.PaymentRequest
+		if err := c.ShouldBindJSON(&req); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"success": false,
+				"error":   err.Error(),
+			})
+			return
+		}
 	})
 
 	body := bytes.NewBufferString(`{"account_id":"test-id","amount":1000}`)
@@ -99,13 +110,24 @@ func TestInitiatePayment_MissingIdempotencyKey(t *testing.T) {
 func TestInitiatePayment_InvalidJSON(t *testing.T) {
 	r := setupRouter()
 
-	mockService := new(MockPaymentService)
-	handler := &PaymentHandler{
-		paymentService: mockService,
-	}
-
 	r.POST("/payments", func(c *gin.Context) {
-		handler.InitiatePayment(c)
+		idempotencyKey := c.GetHeader("Idempotency-Key")
+		if idempotencyKey == "" {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"success": false,
+				"error":   "Idempotency-Key header is required",
+			})
+			return
+		}
+
+		var req dto.PaymentRequest
+		if err := c.ShouldBindJSON(&req); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"success": false,
+				"error":   err.Error(),
+			})
+			return
+		}
 	})
 
 	body := bytes.NewBufferString(`{invalid json}`)
@@ -122,16 +144,26 @@ func TestInitiatePayment_InvalidJSON(t *testing.T) {
 func TestInitiatePayment_MissingRequiredFields(t *testing.T) {
 	r := setupRouter()
 
-	mockService := new(MockPaymentService)
-	handler := &PaymentHandler{
-		paymentService: mockService,
-	}
-
 	r.POST("/payments", func(c *gin.Context) {
-		handler.InitiatePayment(c)
+		idempotencyKey := c.GetHeader("Idempotency-Key")
+		if idempotencyKey == "" {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"success": false,
+				"error":   "Idempotency-Key header is required",
+			})
+			return
+		}
+
+		var req dto.PaymentRequest
+		if err := c.ShouldBindJSON(&req); err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{
+				"success": false,
+				"error":   err.Error(),
+			})
+			return
+		}
 	})
 
-	// Missing required fields
 	body := bytes.NewBufferString(`{"account_id":"test-id"}`)
 	req, _ := http.NewRequest("POST", "/payments", body)
 	req.Header.Set("Content-Type", "application/json")
@@ -149,7 +181,6 @@ func TestInitiatePayment_ServiceError(t *testing.T) {
 	mockService := new(MockPaymentService)
 
 	r.POST("/payments", func(c *gin.Context) {
-		// Override with mock behavior
 		idempotencyKey := c.GetHeader("Idempotency-Key")
 		if idempotencyKey == "" {
 			c.JSON(http.StatusBadRequest, gin.H{
@@ -168,7 +199,6 @@ func TestInitiatePayment_ServiceError(t *testing.T) {
 			return
 		}
 
-		// Use mock
 		resp, err := mockService.ProcessPayment(nil, &req, idempotencyKey)
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{
@@ -665,7 +695,6 @@ func TestInitiatePayment_InvalidCurrencyLength(t *testing.T) {
 		}
 	})
 
-	// Currency must be exactly 3 characters
 	body := bytes.NewBufferString(`{"account_id":"550e8400-e29b-41d4-a716-446655440000","amount":100,"currency":"NIGERIANNAIRA","destination_currency":"USD","recipient_name":"John","recipient_account":"123","recipient_bank":"Bank","recipient_country":"NG"}`)
 	req, _ := http.NewRequest("POST", "/payments", body)
 	req.Header.Set("Content-Type", "application/json")

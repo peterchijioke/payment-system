@@ -1,10 +1,11 @@
-package repositories
+package test
 
 import (
 	"testing"
 	"time"
 
 	"take-Home-assignment/internal/models"
+	"take-Home-assignment/internal/repositories"
 
 	"github.com/stretchr/testify/assert"
 	"gorm.io/gorm"
@@ -13,163 +14,163 @@ import (
 // ============ Transaction Repository Tests ============
 
 func TestTransactionRepository_Create(t *testing.T) {
-	repo := NewTransactionRepository()
+	repo := repositories.NewTransactionRepository()
 
 	// Test that Create method exists and is callable
 	assert.NotNil(t, repo)
 
 	// The actual database operation would need a real DB
 	// This test verifies the interface is implemented
-	var _ TransactionRepository = repo
+	var _ repositories.TransactionRepository = repo
 }
 
 func TestTransactionRepository_Update(t *testing.T) {
-	repo := NewTransactionRepository()
+	repo := repositories.NewTransactionRepository()
 	assert.NotNil(t, repo)
 }
 
 func TestTransactionRepository_FindByID(t *testing.T) {
-	repo := NewTransactionRepository()
+	repo := repositories.NewTransactionRepository()
 	assert.NotNil(t, repo)
 }
 
 func TestTransactionRepository_FindByIdempotencyKey(t *testing.T) {
-	repo := NewTransactionRepository()
+	repo := repositories.NewTransactionRepository()
 	assert.NotNil(t, repo)
 }
 
 func TestTransactionRepository_FindAll(t *testing.T) {
-	repo := NewTransactionRepository()
+	repo := repositories.NewTransactionRepository()
 	assert.NotNil(t, repo)
 }
 
 func TestTransactionRepository_FindByAccountID(t *testing.T) {
-	repo := NewTransactionRepository()
+	repo := repositories.NewTransactionRepository()
 	assert.NotNil(t, repo)
 }
 
 // ============ Account Repository Tests ============
 
 func TestAccountRepository_FindByID(t *testing.T) {
-	repo := NewAccountRepository()
+	repo := repositories.NewAccountRepository()
 	assert.NotNil(t, repo)
 }
 
 func TestAccountRepository_FindByIDAndActive(t *testing.T) {
-	repo := NewAccountRepository()
+	repo := repositories.NewAccountRepository()
 	assert.NotNil(t, repo)
 }
 
 func TestAccountRepository_FindAll(t *testing.T) {
-	repo := NewAccountRepository()
+	repo := repositories.NewAccountRepository()
 	assert.NotNil(t, repo)
 }
 
 func TestAccountRepository_FindBalance(t *testing.T) {
-	repo := NewAccountRepository()
+	repo := repositories.NewAccountRepository()
 	assert.NotNil(t, repo)
 }
 
 func TestAccountRepository_LockFunds(t *testing.T) {
-	repo := NewAccountRepository()
+	repo := repositories.NewAccountRepository()
 	assert.NotNil(t, repo)
 }
 
 func TestAccountRepository_ReleaseFunds(t *testing.T) {
-	repo := NewAccountRepository()
+	repo := repositories.NewAccountRepository()
 	assert.NotNil(t, repo)
 }
 
 func TestAccountRepository_CreditFunds(t *testing.T) {
-	repo := NewAccountRepository()
+	repo := repositories.NewAccountRepository()
 	assert.NotNil(t, repo)
 }
 
 func TestAccountRepository_UpdateBalance(t *testing.T) {
-	repo := NewAccountRepository()
+	repo := repositories.NewAccountRepository()
 	assert.NotNil(t, repo)
 }
 
 func TestAccountRepository_GetSettlementAccount(t *testing.T) {
-	repo := NewAccountRepository()
+	repo := repositories.NewAccountRepository()
 	assert.NotNil(t, repo)
 }
 
 func TestAccountRepository_GetDailyTransactionTotal(t *testing.T) {
-	repo := NewAccountRepository()
+	repo := repositories.NewAccountRepository()
 	assert.NotNil(t, repo)
 }
 
 // ============ Ledger Entry Repository Tests ============
 
 func TestLedgerEntryRepository_Create(t *testing.T) {
-	repo := NewLedgerEntryRepository()
+	repo := repositories.NewLedgerEntryRepository()
 	assert.NotNil(t, repo)
 }
 
 func TestLedgerEntryRepository_Update(t *testing.T) {
-	repo := NewLedgerEntryRepository()
+	repo := repositories.NewLedgerEntryRepository()
 	assert.NotNil(t, repo)
 }
 
 func TestLedgerEntryRepository_FindByTransactionID(t *testing.T) {
-	repo := NewLedgerEntryRepository()
+	repo := repositories.NewLedgerEntryRepository()
 	assert.NotNil(t, repo)
 }
 
 func TestLedgerEntryRepository_UpdateStatus(t *testing.T) {
-	repo := NewLedgerEntryRepository()
+	repo := repositories.NewLedgerEntryRepository()
 	assert.NotNil(t, repo)
 }
 
 // ============ FX Quote Repository Tests ============
 
 func TestFXQuoteRepository_Create(t *testing.T) {
-	repo := NewFXQuoteRepository()
+	repo := repositories.NewFXQuoteRepository()
 	assert.NotNil(t, repo)
 }
 
 func TestFXQuoteRepository_FindValidQuote(t *testing.T) {
-	repo := NewFXQuoteRepository()
+	repo := repositories.NewFXQuoteRepository()
 	assert.NotNil(t, repo)
 }
 
 func TestFXQuoteRepository_LockQuote(t *testing.T) {
-	repo := NewFXQuoteRepository()
+	repo := repositories.NewFXQuoteRepository()
 	assert.NotNil(t, repo)
 }
 
 // ============ Webhook Event Repository Tests ============
 
 func TestWebhookEventRepository_Create(t *testing.T) {
-	repo := NewWebhookEventRepository()
+	repo := repositories.NewWebhookEventRepository()
 	assert.NotNil(t, repo)
 }
 
 func TestWebhookEventRepository_FindByEventIDAndStatus(t *testing.T) {
-	repo := NewWebhookEventRepository()
+	repo := repositories.NewWebhookEventRepository()
 	assert.NotNil(t, repo)
 }
 
 func TestWebhookEventRepository_MarkProcessed(t *testing.T) {
-	repo := NewWebhookEventRepository()
+	repo := repositories.NewWebhookEventRepository()
 	assert.NotNil(t, repo)
 }
 
 func TestWebhookEventRepository_MarkFailed(t *testing.T) {
-	repo := NewWebhookEventRepository()
+	repo := repositories.NewWebhookEventRepository()
 	assert.NotNil(t, repo)
 }
 
 // ============ Idempotency Key Repository Tests ============
 
 func TestIdempotencyKeyRepository_Create(t *testing.T) {
-	repo := NewIdempotencyKeyRepository()
+	repo := repositories.NewIdempotencyKeyRepository()
 	assert.NotNil(t, repo)
 }
 
 func TestIdempotencyKeyRepository_FindValid(t *testing.T) {
-	repo := NewIdempotencyKeyRepository()
+	repo := repositories.NewIdempotencyKeyRepository()
 	assert.NotNil(t, repo)
 }
 
@@ -253,42 +254,42 @@ func TestAccountType_Constants(t *testing.T) {
 // ============ Repository Interface Compliance Tests ============
 
 func TestTransactionRepository_Interface(t *testing.T) {
-	repo := NewTransactionRepository()
+	repo := repositories.NewTransactionRepository()
 
 	// Verify all required methods exist
-	var _ TransactionRepository = repo
+	var _ repositories.TransactionRepository = repo
 
 	// Create instance and verify it's not nil
 	assert.NotNil(t, repo)
 }
 
 func TestAccountRepository_Interface(t *testing.T) {
-	repo := NewAccountRepository()
-	var _ AccountRepository = repo
+	repo := repositories.NewAccountRepository()
+	var _ repositories.AccountRepository = repo
 	assert.NotNil(t, repo)
 }
 
 func TestLedgerEntryRepository_Interface(t *testing.T) {
-	repo := NewLedgerEntryRepository()
-	var _ LedgerEntryRepository = repo
+	repo := repositories.NewLedgerEntryRepository()
+	var _ repositories.LedgerEntryRepository = repo
 	assert.NotNil(t, repo)
 }
 
 func TestFXQuoteRepository_Interface(t *testing.T) {
-	repo := NewFXQuoteRepository()
-	var _ FXQuoteRepository = repo
+	repo := repositories.NewFXQuoteRepository()
+	var _ repositories.FXQuoteRepository = repo
 	assert.NotNil(t, repo)
 }
 
 func TestWebhookEventRepository_Interface(t *testing.T) {
-	repo := NewWebhookEventRepository()
-	var _ WebhookEventRepository = repo
+	repo := repositories.NewWebhookEventRepository()
+	var _ repositories.WebhookEventRepository = repo
 	assert.NotNil(t, repo)
 }
 
 func TestIdempotencyKeyRepository_Interface(t *testing.T) {
-	repo := NewIdempotencyKeyRepository()
-	var _ IdempotencyKeyRepository = repo
+	repo := repositories.NewIdempotencyKeyRepository()
+	var _ repositories.IdempotencyKeyRepository = repo
 	assert.NotNil(t, repo)
 }
 
