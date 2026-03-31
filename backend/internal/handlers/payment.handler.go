@@ -13,7 +13,6 @@ import (
 	"gorm.io/gorm"
 )
 
-// PaymentServiceInterface defines the interface for payment service operations
 type PaymentServiceInterface interface {
 	ProcessPayment(db *gorm.DB, req *dto.PaymentRequest, idempotencyKey string) (*dto.PaymentResponse, error)
 	GetTransactionDetails(transactionID string) (*dto.TransactionDetails, error)
@@ -23,7 +22,6 @@ type PaymentServiceInterface interface {
 	GetDB() *gorm.DB
 }
 
-// Ensure PaymentService implements PaymentServiceInterface
 var _ PaymentServiceInterface = (*services.PaymentService)(nil)
 
 type PaymentHandler struct {
