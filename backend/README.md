@@ -9,6 +9,7 @@ A Go-based payment processing service with idempotency, webhook handling, and do
 - **Webhook Handling**: Secure webhook processing with HMAC signature verification
 - **Double-Entry Ledger**: Financial integrity via ledger entries
 - **Account Management**: Balance tracking with fund locking
+- **Reconciliation**: Detect missing payments, discrepancies, and stuck transactions
 
 ## API Endpoints
 
@@ -61,6 +62,19 @@ curl -X POST http://localhost:8080/webhooks/provider \
     "timestamp": "2024-01-01T00:00:00Z"
   }'
 ```
+
+### GET /reconciliation
+Reconcile transactions for a date range. Detects missing webhooks, failed payments, and reversals.
+
+```bash
+curl "http://localhost:8080/reconciliation?start_date=2026-01-01&end_date=2026-04-07&account_id=<optional>&status=<optional>"
+```
+
+**Query Parameters:**
+- `start_date` (required): Start date in YYYY-MM-DD format
+- `end_date` (required): End date in YYYY-MM-DD format
+- `account_id` (optional): Filter by account
+- `status` (optional): Filter by transaction status
 
 ## Project Structure
 
@@ -117,3 +131,4 @@ Environment variables:
 - Row-level locking for concurrent webhook processing
 - State transition validation
 - Amount verification to prevent fraud
+- Reconciliation for detecting discrepancies and missing webhooks

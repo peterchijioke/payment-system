@@ -19,6 +19,7 @@ type PaymentServiceInterface interface {
 	ListPayments(limit, offset int, status, startDate, endDate string) ([]dto.TransactionDetails, int64, error)
 	ProcessWebhook(db *gorm.DB, rawBody io.Reader, signature string) (*dto.WebhookPayload, error)
 	ListAccounts() ([]models.Account, error)
+	Reconcile(req *dto.ReconciliationRequest) (*dto.ReconciliationResponse, error)
 	GetDB() *gorm.DB
 }
 
@@ -147,4 +148,26 @@ func (h *PaymentHandler) ListAccounts(c *gin.Context) {
 		"success": true,
 		"data":    accounts,
 	})
+}
+
+func (h *PaymentHandler) Reconcile(c *gin.Context) {
+	var req dto.ReconciliationRequest
+	if err := c.ShouldBindQuery(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"success": false,
+			"error":   err.Error(),
+		})
+		return
+	}
+
+	result, err := h.paymentService.Reconcile(&req)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"success": false,
+			"error":   err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, result)
 }

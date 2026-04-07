@@ -25,4 +25,5 @@ func (r *PaymentRoutes) RegisterRoutes(api *gin.RouterGroup) {
 	}
 	api.POST("/webhooks/provider", r.handler.HandleWebhook)
 	api.GET("/accounts", r.handler.ListAccounts)
+	api.GET("/reconciliation", r.handler.Reconcile)
 }

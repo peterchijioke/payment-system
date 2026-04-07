@@ -25,6 +25,7 @@ A Go-based payment processing service with a Next.js frontend, featuring idempot
 - **Webhook Handling**: Secure webhook processing with HMAC signature verification
 - **Double-Entry Ledger**: Financial integrity via ledger entries
 - **Account Management**: Balance tracking with fund locking
+- **Reconciliation**: Detect missing payments, discrepancies, and stuck transactions
 - **Modern UI**: Responsive Next.js dashboard for payment management
 
 ---
@@ -172,6 +173,19 @@ curl -X POST http://localhost:8080/webhooks/provider \
   }'
 ```
 
+#### GET /reconciliation
+Reconcile transactions for a date range. Detects missing webhooks, failed payments, and reversals.
+
+```bash
+curl "http://localhost:8080/reconciliation?start_date=2026-01-01&end_date=2026-04-07&account_id=<optional>&status=<optional>"
+```
+
+**Query Parameters:**
+- `start_date` (required): Start date in YYYY-MM-DD format
+- `end_date` (required): End date in YYYY-MM-DD format
+- `account_id` (optional): Filter by account
+- `status` (optional): Filter by transaction status
+
 ### Running Locally
 
 #### Using Docker Compose
@@ -227,3 +241,4 @@ Environment variables:
 - Row-level locking for concurrent webhook processing
 - State transition validation
 - Amount verification to prevent fraud
+- Reconciliation for detecting discrepancies and missing webhooks

@@ -689,3 +689,65 @@ func (s *PaymentService) ListTransactions(accountID string, limit, offset int) (
 func (s *PaymentService) ListAccounts() ([]models.Account, error) {
 	return s.accountRepo.FindAll(s.db)
 }
+
+func (s *PaymentService) Reconcile(req *dto.ReconciliationRequest) (*dto.ReconciliationResponse, error) {
+	startDate, err := time.Parse("2006-01-02", req.StartDate)
+	if err != nil {
+		return nil, fmt.Errorf("invalid start_date format, use YYYY-MM-DD")
+	}
+	endDate, err := time.Parse("2006-01-02", req.EndDate)
+	if err != nil {
+		return nil, fmt.Errorf("invalid end_date format, use YYYY-MM-DD")
+	}
+	endDate = endDate.Add(24 * time.Hour)
+
+	query := s.db.Where("initiated_at >= ? AND initiated_at < ?", startDate, endDate)
+	if req.AccountID != "" {
+		query = query.Where("account_id = ?", req.AccountID)
+	}
+	if req.Status != "" {
+		query = query.Where("status = ?", req.Status)
+	}
+
+	var transactions []models.PaymentTransaction
+	if err := query.Find(&transactions).Error; err != nil {
+		return nil, fmt.Errorf("failed to query transactions: %w", err)
+	}
+
+	var results []dto.ReconciliationResult
+	var mismatchedCount, missingCount int64
+
+	for _, tx := range transactions {
+		result := dto.ReconciliationResult{
+			TransactionID:  tx.ID,
+			TransactionRef: tx.TransactionRef,
+			Status:         string(tx.Status),
+			LocalUpdatedAt: tx.UpdatedAt.Format(time.RFC3339),
+		}
+
+		switch tx.Status {
+		case models.TransactionStatusInitiated, models.TransactionStatusProcessing:
+			result.Issue = "payment still pending - no final status from provider"
+			missingCount++
+		case models.TransactionStatusFailed:
+			result.Issue = "payment failed"
+			mismatchedCount++
+		case models.TransactionStatusReversed:
+			result.Issue = "payment was reversed"
+			mismatchedCount++
+		default:
+			result.ProviderStatus = string(tx.Status)
+			result.ProviderUpdatedAt = tx.UpdatedAt.Format(time.RFC3339)
+		}
+
+		results = append(results, result)
+	}
+
+	return &dto.ReconciliationResponse{
+		Success:           true,
+		TotalTransactions: int64(len(transactions)),
+		MismatchedCount:   mismatchedCount,
+		MissingCount:      missingCount,
+		Results:           results,
+	}, nil
+}
