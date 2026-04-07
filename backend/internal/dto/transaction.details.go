@@ -11,6 +11,6 @@ type TransactionDetails struct {
 }
 
 type StatusChange struct {
-	Status    string `json:"status"`
-	Timestamp string `json:"timestamp"`
+	Status    string `json:"status" binding:"required"`
+	Timestamp string `json:"timestamp" binding:"required"`
 }
