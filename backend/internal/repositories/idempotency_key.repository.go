@@ -5,10 +5,12 @@ import (
 	"time"
 
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 type IdempotencyKeyRepository interface {
 	FindValid(tx *gorm.DB, key, requestHash string, now time.Time) (*models.IdempotencyKey, error)
+	FindValidForUpdate(tx *gorm.DB, key, requestHash string, now time.Time) (*models.IdempotencyKey, error)
 	Create(tx *gorm.DB, idempotencyKey *models.IdempotencyKey) error
 }
 
@@ -21,6 +23,17 @@ func NewIdempotencyKeyRepository() IdempotencyKeyRepository {
 func (r *idempotencyKeyRepository) FindValid(tx *gorm.DB, key, requestHash string, now time.Time) (*models.IdempotencyKey, error) {
 	var idempotency models.IdempotencyKey
 	err := tx.Where("key = ? AND request_hash = ? AND expires_at > ?", key, requestHash, now).
+		First(&idempotency).Error
+	if err != nil {
+		return nil, err
+	}
+	return &idempotency, nil
+}
+
+func (r *idempotencyKeyRepository) FindValidForUpdate(tx *gorm.DB, key, requestHash string, now time.Time) (*models.IdempotencyKey, error) {
+	var idempotency models.IdempotencyKey
+	err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).
+		Where("key = ? AND request_hash = ? AND expires_at > ?", key, requestHash, now).
 		First(&idempotency).Error
 	if err != nil {
 		return nil, err

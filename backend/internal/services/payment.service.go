@@ -57,14 +57,6 @@ func NewPaymentService(
 func (s *PaymentService) ProcessPayment(db *gorm.DB, req *dto.PaymentRequest, idempotencyKey string) (*dto.PaymentResponse, error) {
 	req.IdempotencyKey = idempotencyKey
 
-	existingResp, err := s.checkIdempotency(db, req)
-	if err != nil {
-		return nil, err
-	}
-	if existingResp != nil {
-		return existingResp, nil
-	}
-
 	tx := db.Begin()
 	if tx.Error != nil {
 		return nil, fmt.Errorf("failed to start transaction: %w", tx.Error)
@@ -75,6 +67,18 @@ func (s *PaymentService) ProcessPayment(db *gorm.DB, req *dto.PaymentRequest, id
 			tx.Rollback()
 		}
 	}()
+
+	existingResp, err := s.checkIdempotencyWithLock(tx, req)
+	if err != nil {
+		tx.Rollback()
+		return nil, err
+	}
+	if existingResp != nil {
+		if err := tx.Rollback().Error; err != nil {
+			return nil, err
+		}
+		return existingResp, nil
+	}
 
 	if err := s.validatePaymentRequest(tx, req); err != nil {
 		tx.Rollback()
@@ -567,6 +571,25 @@ func (s *PaymentService) checkIdempotency(db *gorm.DB, req *dto.PaymentRequest) 
 	hash := generateRequestHash(req)
 
 	idempotency, err := s.idempotencyRepo.FindValid(db, req.IdempotencyKey, hash, time.Now().UTC())
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, nil
+		}
+		return nil, err
+	}
+
+	var cachedResp dto.PaymentResponse
+	if err := json.Unmarshal([]byte(idempotency.ResponseBody), &cachedResp); err != nil {
+		return nil, nil
+	}
+
+	return &cachedResp, nil
+}
+
+func (s *PaymentService) checkIdempotencyWithLock(tx *gorm.DB, req *dto.PaymentRequest) (*dto.PaymentResponse, error) {
+	hash := generateRequestHash(req)
+
+	idempotency, err := s.idempotencyRepo.FindValidForUpdate(tx, req.IdempotencyKey, hash, time.Now().UTC())
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, nil

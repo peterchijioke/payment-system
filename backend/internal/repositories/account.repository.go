@@ -4,6 +4,7 @@ import (
 	"take-Home-assignment/internal/models"
 
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 type AccountRepository interface {
@@ -59,9 +60,17 @@ func (r *accountRepository) FindBalance(tx *gorm.DB, accountID, currency string)
 }
 
 func (r *accountRepository) LockFunds(tx *gorm.DB, accountID, currency string, amount float64) error {
-	result := tx.Model(&models.AccountBalance{}).
+	var balance models.AccountBalance
+	err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).
 		Where("account_id = ? AND currency = ? AND available_balance - reserved_balance >= ?",
 			accountID, currency, amount).
+		First(&balance).Error
+	if err != nil {
+		return gorm.ErrRecordNotFound
+	}
+
+	result := tx.Model(&models.AccountBalance{}).
+		Where("id = ?", balance.ID).
 		Updates(map[string]interface{}{
 			"available_balance":   gorm.Expr("available_balance - ?", amount),
 			"reserved_balance":    gorm.Expr("reserved_balance + ?", amount),
@@ -76,24 +85,50 @@ func (r *accountRepository) LockFunds(tx *gorm.DB, accountID, currency string, a
 }
 
 func (r *accountRepository) ReleaseFunds(tx *gorm.DB, accountID, currency string, amount float64) error {
-	return tx.Model(&models.AccountBalance{}).
+	var balance models.AccountBalance
+	err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).
 		Where("account_id = ? AND currency = ?", accountID, currency).
+		First(&balance).Error
+	if err != nil {
+		return err
+	}
+
+	result := tx.Model(&models.AccountBalance{}).
+		Where("id = ?", balance.ID).
 		Updates(map[string]interface{}{
 			"available_balance":   gorm.Expr("available_balance + ?", amount),
 			"reserved_balance":    gorm.Expr("reserved_balance - ?", amount),
 			"last_transaction_at": tx.NowFunc(),
 			"version":             gorm.Expr("version + 1"),
-		}).Error
+		})
+
+	if result.RowsAffected == 0 {
+		return gorm.ErrRecordNotFound
+	}
+	return result.Error
 }
 
 func (r *accountRepository) CreditFunds(tx *gorm.DB, accountID, currency string, amount float64) error {
-	return tx.Model(&models.AccountBalance{}).
+	var balance models.AccountBalance
+	err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).
 		Where("account_id = ? AND currency = ?", accountID, currency).
+		First(&balance).Error
+	if err != nil {
+		return err
+	}
+
+	result := tx.Model(&models.AccountBalance{}).
+		Where("id = ?", balance.ID).
 		Updates(map[string]interface{}{
 			"available_balance":   gorm.Expr("available_balance + ?", amount),
 			"last_transaction_at": tx.NowFunc(),
 			"version":             gorm.Expr("version + 1"),
-		}).Error
+		})
+
+	if result.RowsAffected == 0 {
+		return gorm.ErrRecordNotFound
+	}
+	return result.Error
 }
 
 func (r *accountRepository) UpdateBalance(tx *gorm.DB, accountID, currency string, updates map[string]interface{}) error {
